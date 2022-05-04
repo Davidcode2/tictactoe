@@ -1,0 +1,29 @@
+.board {
+	display: grid;
+	grid-template: 105px 105px 105px / 105px 105px 105px;
+	gap: 5px;
+	place-items: center;
+	place-content: center;
+}
+
+.field {
+	width: 100px;
+	height: 100px;
+	background-color: purple;
+}
+.field:hover {
+	background-color: burlywood;
+}
+
+.marker-player1 {
+}
+
+.marker-player1::before {
+	content: "1";
+}
+
+.marker-player2 {
+}
+.marker-player2::before {
+	content: "2";
+}
