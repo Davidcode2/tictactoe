@@ -107,10 +107,7 @@ const game = () => {
 
 		const addReplayButton = (() => {
 			let main = document.querySelector('main');
-			let replayButton = document.createElement('button');
-			replayButton.classList.add('restartGameButton');
-			replayButton.textContent = "Replay";
-			replayButton.addEventListener('click', () => {
+			winMessageDiv.addEventListener('click', () => {
 				const boardEl = document.querySelector('.board');
 				let fields = document.querySelectorAll('.field');
 				fields.forEach(elem => {
@@ -124,7 +121,6 @@ const game = () => {
 				main.appendChild(boardDiv);
 				startGame();
 			});
-			main.appendChild(replayButton);
 		})();
 	}
 
