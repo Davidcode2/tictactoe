@@ -46,6 +46,11 @@ h1 {
 	place-content: center;
 }
 
+.restartGameButton {
+	padding: 10px 30px;
+	background-color: olive;
+}
+
 .field {
 	width: 100px;
 	height: 100px;

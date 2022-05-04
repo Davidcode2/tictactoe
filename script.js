@@ -20,6 +20,9 @@ const board = (() => {
 		boardArray[index].set = player;
 		return true;
 	}
+	const resetOccupied = () => {
+		boardArray.forEach(elem => elem.set = null);
+	}
 
 	const htmlFields = ((boardArray) => {
 		let fieldArray = [];
@@ -36,15 +39,14 @@ const board = (() => {
 
 	const renderHtmlBoard = () => {
 		const boardElement = document.querySelector(".board");
-		console.log(htmlFields);
 		htmlFields.fieldArray.forEach(elem => {
-			console.log(elem);
 			boardElement.appendChild(elem);
 		});
 	}
 
 	return {
 		setOccupied,
+		resetOccupied,
 		htmlFields,
 		renderHtmlBoard,
 		boardArray
@@ -52,14 +54,14 @@ const board = (() => {
 })();
 
 const game = () => {
-	const counterFactory = (() => {
-		let counter = 0;
+	const counterFactory = (initial) => {
+		let counter = initial;
 		return function() {
 			counter++
 			console.log(counter);
 			return counter;
 		}
-	})();
+	}
 	const startGame = () => {
 		board.renderHtmlBoard();
 	}
@@ -69,34 +71,62 @@ const game = () => {
 	}
 	const getPlayer = () => currentPlayer;
 
+	let counter = counterFactory(0);
 	board.htmlFields.fieldArray.forEach(elem => {
 		elem.addEventListener('click', () => {
 			if (!board.setOccupied(elem.id.slice(-1), currentPlayer)) return false;
 			elem.classList.add(`marker-${getPlayer()}`);
 			if (isWin(currentPlayer)) {
 				console.log(`${currentPlayer} won`);
-				displayWinMessage(currentPlayer);
+				displayWinMessage(currentPlayer, 'win');
+			} else if (!board.boardArray.find(elem => elem.set == null)) {
+				console.log("tied");
+				displayWinMessage(currentPlayer, 'tie');
 			}
 			currentPlayer = switchTurn(getPlayer());
 		});
 	});
 
-	const displayWinMessage = (player) => {
+	const displayWinMessage = (player, result) => {
 		let main = document.querySelector("main");
 		let winMessageDiv = document.createElement('div');
 		winMessageDiv.classList.add('wonMessage');
 		player.includes("1") ? winMessageDiv.classList.add("p1") : winMessageDiv.classList.add('p2');
 		let playerCapitalized = player.slice(0, 1).toUpperCase() + player.slice(1);
-		winMessageDiv.textContent = `${playerCapitalized} won this game`;
+		if (result === 'win') {
+			winMessageDiv.textContent = `${playerCapitalized} won this game`;
+		} else {
+			winMessageDiv.textContent = `It's a tie`;
+		}
 		main.appendChild(winMessageDiv);
 
 		const makeTransparent = (() => {
 			let fields = document.querySelectorAll('.field');
 			fields.forEach(elem => elem.classList.add('transparent'));
 		})()
-		document.querySelector('html').addEventListener('click', startGame());
-	}
 
+		const addReplayButton = (() => {
+			let main = document.querySelector('main');
+			let replayButton = document.createElement('button');
+			replayButton.classList.add('restartGameButton');
+			replayButton.textContent = "Replay";
+			replayButton.addEventListener('click', () => {
+				const boardEl = document.querySelector('.board');
+				let fields = document.querySelectorAll('.field');
+				fields.forEach(elem => {
+					elem.classList.remove('transparent', 'marker-player2', 'marker-player1');
+				});
+				board.resetOccupied();
+				boardEl.remove();
+				main.removeChild(winMessageDiv);
+				let boardDiv = document.createElement('div');
+				boardDiv.classList.add('board');
+				main.appendChild(boardDiv);
+				startGame();
+			});
+			main.appendChild(replayButton);
+		})();
+	}
 
 	const isWin = (player) => {
 		let marksPlayer = board.boardArray.filter(elem => {
