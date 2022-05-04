@@ -89,6 +89,12 @@ const game = () => {
 		let playerCapitalized = player.slice(0, 1).toUpperCase() + player.slice(1);
 		winMessageDiv.textContent = `${playerCapitalized} won this game`;
 		main.appendChild(winMessageDiv);
+
+		const makeTransparent = (() => {
+			let fields = document.querySelectorAll('.field');
+			fields.forEach(elem => elem.classList.add('transparent'));
+		})()
+		document.querySelector('html').addEventListener('click', startGame());
 	}
 
 
