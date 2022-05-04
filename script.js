@@ -1,10 +1,3 @@
-
-const player = () => {
-	let currentPlayer;
-	const placeMarker = (x, y) => {
-	}
-}
-
 const board = (() => {
 	const boardArray = (function(boardSize) {
 		const point = (x, y) => {
@@ -22,7 +15,7 @@ const board = (() => {
 	})(3);
 
 	const checkOccupied = (index) => (boardArray[index].set === null) ? false : true;
-	const setOccupied = (index, player, field) => {
+	const setOccupied = (index, player) => {
 		if (checkOccupied(index)) return false;
 		boardArray[index].set = player;
 		return true;
@@ -68,6 +61,7 @@ const game = () => {
 		}
 	})();
 	const startGame = () => {
+		board.renderHtmlBoard();
 	}
 	let currentPlayer = "player1";
 	const switchTurn = (currentPlayer) => {
@@ -75,35 +69,64 @@ const game = () => {
 	}
 	const getPlayer = () => currentPlayer;
 
-	let counter = counterFactory;
 	board.htmlFields.fieldArray.forEach(elem => {
 		elem.addEventListener('click', () => {
-			let count = counter();
 			if (!board.setOccupied(elem.id.slice(-1), currentPlayer)) return false;
 			elem.classList.add(`marker-${getPlayer()}`);
 			if (isWin(currentPlayer)) {
 				console.log(`${currentPlayer} won`);
+				displayWinMessage(currentPlayer);
 			}
 			currentPlayer = switchTurn(getPlayer());
 		});
 	});
+
+	const displayWinMessage = (player) => {
+		let main = document.querySelector("main");
+		let winMessageDiv = document.createElement('div');
+		winMessageDiv.classList.add('wonMessage');
+		player.includes("1") ? winMessageDiv.classList.add("p1") : winMessageDiv.classList.add('p2');
+		let playerCapitalized = player.slice(0, 1).toUpperCase() + player.slice(1);
+		winMessageDiv.textContent = `${playerCapitalized} won this game`;
+		main.appendChild(winMessageDiv);
+	}
+
+
 	const isWin = (player) => {
 		let marksPlayer = board.boardArray.filter(elem => {
 			return elem.set == player;
 		});
 		if (marksPlayer.length >= 3) {
 			console.log(marksPlayer);
-			for (let i = 0; i < marksPlayer.length; i++) {
-				console.log(marksPlayer.filter(elem => elem.x != marksPlayer[i].x));
-				return (marksPlayer.filter(elem => elem.x == marksPlayer[i].x).length == 3)
-					|| (marksPlayer.filter(elem => elem.y == marksPlayer[i].y).length == 3)
-					|| ((marksPlayer.find(elem => elem.x == 1 && elem.y == 1) && (marksPlayer.filter(elem => elem.x != marksPlayer[i].x).length >= 2)
-						&& (marksPlayer.filter(elem => elem.y != marksPlayer[i].y)).length >= 2))
-			}
+			//for (let i = 0; i < marksPlayer.length; i++) {
+			return (marksPlayer.filter(elem => elem.x == 0).length >= 3)
+				|| (marksPlayer.filter(elem => elem.x == 1).length >= 3)
+				|| (marksPlayer.filter(elem => elem.x == 2).length >= 3)
+				|| (marksPlayer.filter(elem => elem.y == 0).length >= 3)
+				|| (marksPlayer.filter(elem => elem.y == 1).length >= 3)
+				|| (marksPlayer.filter(elem => elem.y == 2).length >= 3)
+				||
+				(
+					(marksPlayer.find(elem => elem.x == 1 && elem.y == 1)
+						&&
+						(
+							(
+								(marksPlayer.find(elem => elem.x == 0 && elem.y == 2))
+								&& (marksPlayer.find(elem => elem.x == 2 && elem.y == 0))
+							)
+							||
+							(
+								(marksPlayer.find(elem => elem.x == 0 && elem.y == 0))
+								&& (marksPlayer.find(elem => elem.x == 2 && elem.y == 2))
+							)
+						)
+					)
+				)
 		}
+		//	}
 	}
-	return Object.assign({}, { board }, { switchTurn }, { startGame }, { getPlayer })
+	return Object.assign({}, { board }, { startGame }, { getPlayer })
 }
 
 let myGame = game();
-myGame.board.renderHtmlBoard();
+myGame.startGame();
